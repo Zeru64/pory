@@ -203,7 +203,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     ${items.map((item) => `
                         <div onclick="showDetailModalByIndex(${database.indexOf(item)})" class="grid-item bg-white rounded-3xl overflow-hidden cursor-pointer">
-                            <img src="${item.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover 20px" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
+                            <img src="${item.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover" style="object-position: center -55px" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
                             <div class="p-3">
                                 <p class="font-medium truncate">${item.name}</p>
 								<p class="text-s text-zinc-500 truncate">${item.year} ${item.serie1} - ${item.serie2}</p>
@@ -227,7 +227,7 @@
                         const first = models[m][0];
                         return `
                         <div onclick="selectModel('${m.replace(/'/g, "\\'")}')" class="model-card bg-white rounded-3xl overflow-hidden cursor-pointer">
-                            <img src="${first.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover 20px" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
+                            <img src="${first.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover" style="object-position: center -55px" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
                             <div class="p-5">
                                 <p class="font-semibold text-l">${m}</p>
                                 <p class="text-zinc-500">${models[m].length} versiones</p>
