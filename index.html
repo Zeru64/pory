@@ -21,8 +21,8 @@
             <div class="flex items-center gap-x-3">
                 <div class="hidden sm:flex w-9 h-9 bg-white rounded-2xl items-center justify-center text-red-600 text-3xl shadow-inner">Pory</div>
                 <div>
-                    <h1 class="text-2xl font-semibold tracking-tight">HW Vette</h1>
-                    <p class="text-red-200 text-xs -mt-0.5">Zeru's Collection</p>
+                    <h1 class="text-2xl font-semibold tracking-tight">Zeru's Porygon</h1>
+                    <p class="text-red-200 text-xs -mt-0.5">Universal Set Collection</p>
                 </div>
             </div>
 
@@ -51,7 +51,7 @@
     <div id="form-modal" class="hidden fixed inset-0 bg-black/80 flex items-start justify-center overflow-y-auto z-[100] p-4">
         <div class="bg-white text-zinc-900 rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto modal">
             <div class="p-8">
-                <h2 id="form-title" class="text-2xl font-semibold mb-6">Nuevo Corvette</h2>
+                <h2 id="form-title" class="text-2xl font-semibold mb-6">Nuevo Porygon</h2>
                 <div class="grid grid-cols-2 gap-x-6 gap-y-5" id="item-form"></div>
                 <div class="flex justify-end gap-x-4 mt-10">
                     <button onclick="closeAllModals()" class="px-6 py-3 border border-zinc-300 rounded-2xl hover:bg-zinc-100">Cancelar</button>
@@ -128,7 +128,7 @@
             const items = database.filter(i => i.collection === cat);
             const models = {};
             items.forEach(item => {
-                const m = item.model || 'Sin modelo';
+                const m = item.model || 'Sin cartas';
                 if (!models[m]) models[m] = [];
                 models[m].push(item);
             });
@@ -203,7 +203,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     ${items.map((item) => `
                         <div onclick="showDetailModalByIndex(${database.indexOf(item)})" class="grid-item bg-white rounded-3xl overflow-hidden cursor-pointer">
-                            <img src="${item.imgurl || 'https://picsum.photos/id/1015/600/400'}" class="w-full aspect-video object-cover" onerror="this.src='https://picsum.photos/id/1015/600/400'">
+                            <img src="${item.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
                             <div class="p-3">
                                 <p class="font-medium truncate">${item.name}</p>
 								<p class="text-s text-zinc-500 truncate">${item.year} ${item.serie1} - ${item.serie2}</p>
