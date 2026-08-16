@@ -391,9 +391,19 @@
         <label for="f-year">Year</label>
         <select id="f-year"><option value="">All</option></select>
       </div>
+      <div class="filter-field">
+        <label for="f-image">Image</label>
+        <select id="f-image">
+          <option value="">All</option>
+          <option value="ok">OK</option>
+          <option value="broken">Broken link</option>
+          <option value="missing">Missing URL</option>
+        </select>
+      </div>
       <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
     </form>
 
+    <div id="image-check-status" class="results-count"></div>
     <div id="results-count" class="results-count"></div>
 
     <div class="table-wrap">
@@ -512,6 +522,71 @@
   };
   var artOrder = []; // ordered unique art_ids present in Cards
 
+  // imageStatus[Code] = 'pending' | 'ok' | 'broken' | 'missing'
+  var imageStatus = {};
+  var imageCheckTotal = 0;
+  var imageCheckDone = 0;
+
+  function checkAllImages(){
+    imageStatus = {};
+    imageCheckTotal = 0;
+    imageCheckDone = 0;
+
+    cards.forEach(function(c){
+      if(!c.URL){
+        imageStatus[c.Code] = "missing";
+        return;
+      }
+      imageStatus[c.Code] = "pending";
+      imageCheckTotal++;
+    });
+
+    updateImageCheckStatus();
+
+    if(imageCheckTotal === 0){
+      finishImageCheck();
+      return;
+    }
+
+    cards.forEach(function(c){
+      if(!c.URL) return;
+      var img = new Image();
+      img.onload = function(){
+        imageStatus[c.Code] = "ok";
+        imageCheckDone++;
+        updateImageCheckStatus();
+        if(imageCheckDone === imageCheckTotal) finishImageCheck();
+      };
+      img.onerror = function(){
+        imageStatus[c.Code] = "broken";
+        imageCheckDone++;
+        updateImageCheckStatus();
+        if(imageCheckDone === imageCheckTotal) finishImageCheck();
+      };
+      img.src = c.URL;
+    });
+  }
+
+  function updateImageCheckStatus(){
+    var el = document.getElementById("image-check-status");
+    if(!el) return;
+    if(imageCheckTotal === 0){
+      el.textContent = "";
+      return;
+    }
+    if(imageCheckDone < imageCheckTotal){
+      el.textContent = "Checking image links… (" + imageCheckDone + " / " + imageCheckTotal + ")";
+    } else {
+      el.textContent = "";
+    }
+  }
+
+  function finishImageCheck(){
+    updateImageCheckStatus();
+    renderStats();
+    renderTable();
+  }
+
   function variantLabel(foil, variation){
     foil = (foil || "").trim();
     variation = (variation || "").trim();
@@ -604,6 +679,7 @@
     renderTable();
     bindFilterEvents();
     bindGlobalModalEvents();
+    checkAllImages();
   }
 
   // ---- ART GRID ----
@@ -702,7 +778,11 @@
       { label: "Language Completion", value: langCompletion.toFixed(1) + "%" },
       { label: "Ordered", value: String(ordered) },
       { label: "Seen / Evidence", value: String(seenEvidence) },
-      { label: "Total Variants", value: String(total) }
+      { label: "Total Variants", value: String(total) },
+      { label: "Broken / Missing Images", value: String(cards.filter(function(c){
+          var st = imageStatus[c.Code];
+          return st === "broken" || st === "missing";
+        }).length) }
     ];
 
     var grid = document.getElementById("stats-grid");
@@ -771,6 +851,7 @@
     var statusVal = document.getElementById("f-status").value;
     var foilVal = document.getElementById("f-foil").value;
     var yearVal = document.getElementById("f-year").value;
+    var imageVal = document.getElementById("f-image").value;
 
     return cards.filter(function(c){
       if(setVal && c.Set !== setVal) return false;
@@ -779,16 +860,17 @@
       if(statusVal && c.Status !== statusVal) return false;
       if(foilVal && c.Foil !== foilVal) return false;
       if(yearVal && c.Year !== yearVal) return false;
+      if(imageVal && imageStatus[c.Code] !== imageVal) return false;
       return true;
     });
   }
 
   function bindFilterEvents(){
-    ["f-set","f-lang","f-variant","f-status","f-foil","f-year"].forEach(function(id){
+    ["f-set","f-lang","f-variant","f-status","f-foil","f-year","f-image"].forEach(function(id){
       document.getElementById(id).addEventListener("change", renderTable);
     });
     document.getElementById("clear-filters").addEventListener("click", function(){
-      ["f-set","f-lang","f-variant","f-status","f-foil","f-year"].forEach(function(id){
+      ["f-set","f-lang","f-variant","f-status","f-foil","f-year","f-image"].forEach(function(id){
         document.getElementById(id).value = "";
       });
       renderTable();
@@ -985,7 +1067,8 @@
 
     var imgWrap = document.createElement("div");
     imgWrap.className = "card-modal-img";
-	var FALLBACK_IMAGE_URL = "https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/cards/porygont.png";
+    var FALLBACK_IMAGE_URL = "https://example.com/path/to/tu-imagen-de-error.png";
+
     if(card.URL){
       var img = document.createElement("img");
       img.src = card.URL;
