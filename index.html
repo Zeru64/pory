@@ -1,422 +1,1066 @@
 <!DOCTYPE html>
-<html lang="es" class="overflow-y-scroll">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zeru's Pory Cards</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        :root { font-family: 'Inter', system_ui, sans-serif; }
-        .modal { animation: modalPop 0.3s ease forwards; }
-        @keyframes modalPop { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-        .grid-item, .model-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .grid-item:hover, .model-card:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porygon Card Database</title>
+<style>
+  :root{
+    --bg:#000000;
+    --fg:#ffffff;
+    --fg-secondary:#9a9a9a;
+    --pink:#ff5ca8;
+    --cyan:#57d9ff;
+    --line:#2a2a2a;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:Arial, Helvetica, "Segoe UI", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  header{
+    padding:40px 24px 24px 24px;
+    border-bottom:1px solid var(--line);
+    text-align:center;
+  }
+  header h1{
+    margin:0;
+    font-size:18px;
+    font-weight:normal;
+    letter-spacing:4px;
+    text-transform:uppercase;
+  }
+  main{
+    max-width:1200px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+  section{
+    padding:56px 0;
+  }
+  #art-section{
+    border-bottom:1px solid var(--line);
+  }
+  .section-title{
+    font-size:13px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--cyan);
+    margin:0 0 32px 0;
+    font-weight:normal;
+  }
+
+  /* ---------- ART GRID ---------- */
+  .art-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:24px;
+  }
+  .art-item{
+    background:none;
+    border:none;
+    padding:0;
+    text-align:left;
+    color:inherit;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .art-thumb{
+    width:100%;
+    aspect-ratio:5/7;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:#0a0a0a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:border-color .15s ease;
+  }
+  .art-item:hover .art-thumb{
+    border-color:var(--pink);
+  }
+  .art-thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .art-thumb .fallback{
+    font-size:11px;
+    color:var(--fg-secondary);
+    padding:8px;
+    text-align:center;
+  }
+  .art-name{
+    font-size:12px;
+    color:var(--fg-secondary);
+    letter-spacing:.3px;
+  }
+  .art-item:hover .art-name{
+    color:var(--fg);
+  }
+
+  /* ---------- STATS ---------- */
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:48px;
+  }
+  .stat-cell{
+    background:var(--bg);
+    padding:18px 16px;
+  }
+  .stat-label{
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--fg-secondary);
+    margin-bottom:8px;
+  }
+  .stat-value{
+    font-size:20px;
+    color:var(--fg);
+  }
+  .stat-value .accent{
+    color:var(--pink);
+  }
+
+  /* ---------- FILTERS ---------- */
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    align-items:end;
+    padding:20px 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:16px;
+  }
+  .filter-field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .filter-field label{
+    font-size:10px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--fg-secondary);
+  }
+  .filter-field select{
+    background:var(--bg);
+    color:var(--fg);
+    border:1px solid var(--line);
+    padding:6px 8px;
+    font-size:13px;
+    font-family:inherit;
+    min-width:140px;
+  }
+  .filter-field select:focus{
+    outline:1px solid var(--cyan);
+  }
+  .clear-btn{
+    background:var(--bg);
+    color:var(--pink);
+    border:1px solid var(--pink);
+    padding:7px 14px;
+    font-size:12px;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+  }
+  .clear-btn:hover{
+    background:var(--pink);
+    color:var(--bg);
+  }
+
+  .results-count{
+    font-size:12px;
+    color:var(--fg-secondary);
+    margin-bottom:16px;
+  }
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{
+    overflow-x:auto;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  thead th{
+    text-align:left;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--fg-secondary);
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    font-weight:normal;
+  }
+  tbody td{
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  tbody tr:hover{
+    background:#0a0a0a;
+  }
+  .variant-link{
+    background:none;
+    border:none;
+    color:var(--fg);
+    padding:0;
+    font-size:13px;
+    text-align:left;
+    text-decoration:underline;
+    text-decoration-color:var(--line);
+    text-underline-offset:3px;
+  }
+  .variant-link:hover{
+    color:var(--pink);
+    text-decoration-color:var(--pink);
+  }
+
+  .empty-note, .error-note{
+    color:var(--fg-secondary);
+    font-size:13px;
+    padding:24px 0;
+  }
+
+  /* ---------- MODALS ---------- */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:1000;
+  }
+  .modal-box{
+    background:var(--bg);
+    border:1px solid var(--pink);
+    max-width:900px;
+    width:100%;
+    max-height:86vh;
+    overflow-y:auto;
+    padding:28px;
+    position:relative;
+  }
+  .modal-close{
+    position:absolute;
+    top:14px;
+    right:16px;
+    background:none;
+    border:none;
+    color:var(--fg-secondary);
+    font-size:22px;
+    line-height:1;
+    padding:4px 8px;
+  }
+  .modal-close:hover{
+    color:var(--pink);
+  }
+  .modal-title{
+    font-size:13px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--cyan);
+    margin:0 0 20px 0;
+    padding-right:32px;
+  }
+
+  /* art modal table */
+  .modal-box table{
+    margin-top:8px;
+  }
+
+  /* card modal */
+  .card-modal-body{
+    display:flex;
+    gap:32px;
+    align-items:flex-start;
+  }
+  .card-modal-img{
+    flex:0 0 260px;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#0a0a0a;
+    min-height:200px;
+  }
+  .card-modal-img img{
+    width:100%;
+    display:block;
+  }
+  .card-modal-details{
+    flex:1;
+    min-width:0;
+  }
+  .detail-row{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    padding:8px 0;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .detail-row .k{
+    color:var(--fg-secondary);
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    font-size:11px;
+    padding-top:2px;
+    white-space:nowrap;
+  }
+  .detail-row .v{
+    text-align:right;
+  }
+
+  @media (max-width:900px){
+    .art-grid{grid-template-columns:repeat(3,1fr);}
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .card-modal-body{flex-direction:column;}
+    .card-modal-img{flex:none;width:100%;}
+  }
+  @media (max-width:560px){
+    .art-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    header h1{font-size:14px;letter-spacing:2px;}
+    section{padding:36px 0;}
+  }
+</style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
 
-    <nav class="bg-red-600 border-b border-red-700 sticky top-0 z-50">
-        <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between min-w-0">
-            <div class="flex items-center gap-x-3">
-                <div class="hidden sm:flex w-9 h-9 bg-white rounded-2xl items-center justify-center text-red-600 text-3xl shadow-inner">Pory</div>
-                <div>
-                    <h1 class="text-2xl font-semibold tracking-tight">Zeru's Porygon</h1>
-                    <p class="text-red-200 text-xs -mt-0.5">Universal Set Collection</p>
-                </div>
-            </div>
+<header>
+  <h1>Porygon Card Database</h1>
+</header>
 
-            <div class="flex min-w-0 bg-red-700 rounded-3xl p-1 shadow-inner">
-                <button onclick="setPage('coleccion')" id="tab-coleccion" class="nav-tab flex-1 px-3 sm:px-8 py-3 rounded-3xl text-sm font-medium truncate">Coleccion</button>
-                <button onclick="setPage('faltantes')" id="tab-faltantes" class="nav-tab flex-1 px-3 sm:px-8 py-3 rounded-3xl text-sm font-medium truncate">Faltantes</button>
-                <button onclick="setPage('informacion')" id="tab-informacion" class="nav-tab flex-1 px-3 sm:px-8 py-3 rounded-3xl text-sm font-medium truncate">Info</button>
-            </div>
+<main>
 
-            <div class="hidden sm:flex text-xs bg-red-700 text-red-100 px-3 py-1.5 rounded-2xl items-center">
-                <span id="total-count" class="font-mono font-semibold">0</span>
-            </div>
-        </div>
-    </nav>
+  <section id="art-section">
+    <h2 class="section-title">Art Set</h2>
+    <div id="art-grid" class="art-grid"></div>
+  </section>
 
-    <div id="main-content" class="max-w-screen-2xl mx-auto px-6 py-8 overflow-x-hidden"></div>
+  <section id="collection-section">
+    <h2 class="section-title">Collection Data</h2>
 
-    <!-- Modal Detalle -->
-    <div id="detail-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-        <div class="bg-white text-zinc-900 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-            <div class="p-6 overflow-y-auto" id="detail-content"></div>
-        </div>
+    <div id="stats-grid" class="stats-grid"></div>
+
+    <h2 class="section-title">All Variants</h2>
+
+    <form id="filters" class="filters">
+      <div class="filter-field">
+        <label for="f-set">Set</label>
+        <select id="f-set"><option value="">All</option></select>
+      </div>
+      <div class="filter-field">
+        <label for="f-lang">Language</label>
+        <select id="f-lang"><option value="">All</option></select>
+      </div>
+      <div class="filter-field">
+        <label for="f-variant">Variant</label>
+        <select id="f-variant"><option value="">All</option></select>
+      </div>
+      <div class="filter-field">
+        <label for="f-status">Status</label>
+        <select id="f-status"><option value="">All</option></select>
+      </div>
+      <div class="filter-field">
+        <label for="f-foil">Foil</label>
+        <select id="f-foil"><option value="">All</option></select>
+      </div>
+      <div class="filter-field">
+        <label for="f-year">Year</label>
+        <select id="f-year"><option value="">All</option></select>
+      </div>
+      <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
+    </form>
+
+    <div id="results-count" class="results-count"></div>
+
+    <div class="table-wrap">
+      <table id="all-variants-table">
+        <thead>
+          <tr>
+            <th>Set</th>
+            <th>Language</th>
+            <th>Variant</th>
+          </tr>
+        </thead>
+        <tbody id="all-variants-body"></tbody>
+      </table>
     </div>
+    <div id="table-empty" class="empty-note" style="display:none;">No variants match the current filters.</div>
+  </section>
 
-    <!-- Modal Editar / Registrar -->
-    <div id="form-modal" class="hidden fixed inset-0 bg-black/80 flex items-start justify-center overflow-y-auto z-[100] p-4">
-        <div class="bg-white text-zinc-900 rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto modal">
-            <div class="p-8">
-                <h2 id="form-title" class="text-2xl font-semibold mb-6">Nuevo Porygon</h2>
-                <div class="grid grid-cols-2 gap-x-6 gap-y-5" id="item-form"></div>
-                <div class="flex justify-end gap-x-4 mt-10">
-                    <button onclick="closeAllModals()" class="px-6 py-3 border border-zinc-300 rounded-2xl hover:bg-zinc-100">Cancelar</button>
-                    <button onclick="saveItem()" class="px-8 py-3 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 font-semibold">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+</main>
 
-    <script>
-        let database = [];
-        let currentPage = 'coleccion';
-        let currentModel = null;
-        let editingId = null;
-		document.addEventListener("keydown", (e) => {
-			if (e.key === "Escape") closeAllModals();
-		});
+<div id="modal-root"></div>
 
-        const DB_URL = "https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/database.json";
+<script>
+(function(){
 
-        const pageConfig = {
-            coleccion: { label: 'Coleccion', cat: 'Coleccion' },
-            faltantes: { label: 'Faltantes', cat: 'Faltantes' },
-            informacion: { label: 'Informacion' }
+  var CARDS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROatNXdyuDhFaYun-TbAhhhF5DYG3K3vc6-CfRrv_asoLdxp31XO9GmX41yS-gzQ/pub?gid=1891749757&single=true&output=csv";
+  var LEGEND_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROatNXdyuDhFaYun-TbAhhhF5DYG3K3vc6-CfRrv_asoLdxp31XO9GmX41yS-gzQ/pub?gid=657860837&single=true&output=csv";
+
+  // ---------------- CSV PARSER ----------------
+  function parseCSV(text){
+    var rows = [];
+    var row = [];
+    var field = "";
+    var inQuotes = false;
+    var i = 0;
+    var len = text.length;
+
+    while(i < len){
+      var c = text[i];
+
+      if(inQuotes){
+        if(c === '"'){
+          if(text[i+1] === '"'){
+            field += '"';
+            i += 2;
+            continue;
+          } else {
+            inQuotes = false;
+            i++;
+            continue;
+          }
+        } else {
+          field += c;
+          i++;
+          continue;
+        }
+      } else {
+        if(c === '"'){
+          inQuotes = true;
+          i++;
+          continue;
+        } else if(c === ','){
+          row.push(field);
+          field = "";
+          i++;
+          continue;
+        } else if(c === '\r'){
+          i++;
+          continue;
+        } else if(c === '\n'){
+          row.push(field);
+          rows.push(row);
+          row = [];
+          field = "";
+          i++;
+          continue;
+        } else {
+          field += c;
+          i++;
+          continue;
+        }
+      }
+    }
+    // last field/row
+    if(field.length > 0 || row.length > 0){
+      row.push(field);
+      rows.push(row);
+    }
+
+    // remove fully empty trailing rows
+    rows = rows.filter(function(r){
+      return !(r.length === 1 && r[0].trim() === "");
+    });
+
+    if(rows.length === 0) return [];
+
+    var headers = rows[0].map(function(h){ return h.trim(); });
+    var records = [];
+    for(var r = 1; r < rows.length; r++){
+      var rec = {};
+      var rr = rows[r];
+      if(rr.length === 1 && rr[0].trim() === "") continue;
+      for(var c2 = 0; c2 < headers.length; c2++){
+        rec[headers[c2]] = (rr[c2] !== undefined) ? rr[c2].trim() : "";
+      }
+      records.push(rec);
+    }
+    return records;
+  }
+
+  // ---------------- STATE ----------------
+  var cards = [];
+  var legend = {
+    status: {},   // st_id -> Status name
+    language: {}, // lan_id -> Language name
+    art: {}       // art_id -> {name, url}
+  };
+  var artOrder = []; // ordered unique art_ids present in Cards
+
+  function variantLabel(foil, variation){
+    foil = (foil || "").trim();
+    variation = (variation || "").trim();
+    if(foil && variation) return foil + " — " + variation;
+    if(foil && !variation) return foil;
+    if(!foil && variation) return variation;
+    return "Regular";
+  }
+
+  function statusName(code){
+    if(!code) return "—";
+    return legend.status[code] || code;
+  }
+
+  function langName(code){
+    if(!code) return "—";
+    return legend.language[code] || code;
+  }
+
+  function artInfo(artId){
+    return legend.art[artId] || { name: artId || "Unknown", url: "" };
+  }
+
+  // ---------------- LOAD ----------------
+  function loadData(){
+    Promise.all([
+      fetch(CARDS_CSV_URL).then(function(r){
+        if(!r.ok) throw new Error("Cards fetch failed: " + r.status);
+        return r.text();
+      }),
+      fetch(LEGEND_CSV_URL).then(function(r){
+        if(!r.ok) throw new Error("Legend fetch failed: " + r.status);
+        return r.text();
+      })
+    ]).then(function(results){
+      var cardsRaw = parseCSV(results[0]);
+      var legendRaw = parseCSV(results[1]);
+
+      cards = cardsRaw.filter(function(row){
+        return row.Code && row.Code.trim() !== "";
+      });
+
+      legendRaw.forEach(function(row){
+        if(row.st_id && row.st_id.trim() !== ""){
+          legend.status[row.st_id.trim()] = (row.Status || "").trim();
+        }
+        if(row.lan_id && row.lan_id.trim() !== ""){
+          legend.language[row.lan_id.trim()] = (row.Language || "").trim();
+        }
+        if(row.art_id && row.art_id.trim() !== ""){
+          legend.art[row.art_id.trim()] = {
+            name: (row.art_set || "").trim() || row.art_id.trim(),
+            url: (row.art_url || "").trim()
+          };
+        }
+      });
+
+      // build ordered unique art_id list from Cards
+      var seen = {};
+      cards.forEach(function(c){
+        var aid = (c.art_id || "").trim();
+        if(aid && !seen[aid]){
+          seen[aid] = true;
+          artOrder.push(aid);
+        }
+      });
+
+      init();
+    }).catch(function(err){
+      console.error(err);
+      showLoadError();
+    });
+  }
+
+  function showLoadError(){
+    var artGrid = document.getElementById("art-grid");
+    artGrid.innerHTML = '<div class="error-note">Unable to load the collection data.</div>';
+    var statsGrid = document.getElementById("stats-grid");
+    statsGrid.innerHTML = '<div class="error-note">Unable to load the collection data.</div>';
+    document.getElementById("table-empty").style.display = "block";
+    document.getElementById("table-empty").textContent = "Unable to load the collection data.";
+    document.getElementById("results-count").textContent = "";
+  }
+
+  // ---------------- INIT / RENDER ----------------
+  function init(){
+    renderArtGrid();
+    renderStats();
+    populateFilters();
+    renderTable();
+    bindFilterEvents();
+    bindGlobalModalEvents();
+  }
+
+  // ---- ART GRID ----
+  function renderArtGrid(){
+    var grid = document.getElementById("art-grid");
+    grid.innerHTML = "";
+
+    if(artOrder.length === 0){
+      grid.innerHTML = '<div class="empty-note">No art data available.</div>';
+      return;
+    }
+
+    artOrder.forEach(function(artId){
+      var info = artInfo(artId);
+      var btn = document.createElement("button");
+      btn.className = "art-item";
+      btn.type = "button";
+      btn.setAttribute("aria-label", "View variants for " + info.name);
+
+      var thumb = document.createElement("div");
+      thumb.className = "art-thumb";
+
+      if(info.url){
+        var img = document.createElement("img");
+        img.src = info.url;
+        img.alt = info.name;
+        img.loading = "lazy";
+        img.onerror = function(){
+          thumb.innerHTML = '<span class="fallback">' + escapeHtml(info.name) + '</span>';
         };
-		
-		const allFields = [
-            { key: 'id', label: 'ID' },
-            { key: 'model', label: 'Card' },
-            { key: 'name', label: 'Name' },
-            { key: 'year', label: 'Release' },
-            { key: 'color', label: 'Language' },
-            { key: 'serie1', label: 'Set' },
-            { key: 'serie2', label: 'Pack' },
-            { key: 'subserie', label: 'Subpack' },
-            { key: 'variant', label: 'Variant' },
-            { key: 'notes', label: 'Notes' },
-            { key: 'collection', label: 'Category', detail: false },
-            { key: 'imgurl', label: 'URL Image', detail: false }
-        ];
+        thumb.appendChild(img);
+      } else {
+        thumb.innerHTML = '<span class="fallback">' + escapeHtml(info.name) + '</span>';
+      }
 
-        async function loadDatabase() {
-            try {
-                const response = await fetch(DB_URL + '?t=' + Date.now());
-                if (!response.ok) throw new Error('Error');
-                database = await response.json();
-                database.forEach(item => { if (!item.model) item.model = ''; });
-                console.log(`? DB cargada (${database.length} entradas)`);
-            } catch (error) {
-                console.error("Error cargando DB:", error);
-                alert("No se pudo cargar la base de datos desde GitHub.");
-            }
-            renderContent();
+      var name = document.createElement("div");
+      name.className = "art-name";
+      name.textContent = info.name;
+
+      btn.appendChild(thumb);
+      btn.appendChild(name);
+      btn.addEventListener("click", function(){
+        openArtModal(artId);
+      });
+
+      grid.appendChild(btn);
+    });
+  }
+
+  // ---- STATS ----
+  function isGotOrOrdered(status){
+    return status === "G" || status === "O";
+  }
+
+  function renderStats(){
+    var total = cards.length;
+    var gotOrOrdered = cards.filter(function(c){ return isGotOrOrdered(c.Status); }).length;
+    var ordered = cards.filter(function(c){ return c.Status === "O"; }).length;
+    var seenEvidence = cards.filter(function(c){ return c.Status === "S" || c.Status === "E"; }).length;
+    var completion = total > 0 ? (gotOrOrdered / total * 100) : 0;
+
+    // art completion
+    var totalArts = artOrder.length;
+    var gotArts = 0;
+    artOrder.forEach(function(artId){
+      var hasGot = cards.some(function(c){
+        return (c.art_id || "").trim() === artId && isGotOrOrdered(c.Status);
+      });
+      if(hasGot) gotArts++;
+    });
+    var artCompletion = totalArts > 0 ? (gotArts / totalArts * 100) : 0;
+
+    // language completion
+    var allLangs = {};
+    cards.forEach(function(c){
+      var l = (c.Lang || "").trim();
+      if(l) allLangs[l] = true;
+    });
+    var langCodes = Object.keys(allLangs);
+    var totalLangs = langCodes.length;
+    var gotLangs = 0;
+    langCodes.forEach(function(l){
+      var hasGot = cards.some(function(c){
+        return (c.Lang || "").trim() === l && isGotOrOrdered(c.Status);
+      });
+      if(hasGot) gotLangs++;
+    });
+    var langCompletion = totalLangs > 0 ? (gotLangs / totalLangs * 100) : 0;
+
+    var stats = [
+      { label: "Universal Set", value: gotOrOrdered + " / " + total },
+      { label: "Completion", value: completion.toFixed(1) + "%" },
+      { label: "Art Set", value: gotArts + " / " + totalArts },
+      { label: "Art Completion", value: artCompletion.toFixed(1) + "%" },
+      { label: "Languages", value: gotLangs + " / " + totalLangs },
+      { label: "Language Completion", value: langCompletion.toFixed(1) + "%" },
+      { label: "Ordered", value: String(ordered) },
+      { label: "Seen / Evidence", value: String(seenEvidence) },
+      { label: "Total Variants", value: String(total) }
+    ];
+
+    var grid = document.getElementById("stats-grid");
+    grid.innerHTML = "";
+    stats.forEach(function(s){
+      var cell = document.createElement("div");
+      cell.className = "stat-cell";
+      cell.innerHTML = '<div class="stat-label">' + escapeHtml(s.label) + '</div>' +
+                        '<div class="stat-value">' + escapeHtml(s.value) + '</div>';
+      grid.appendChild(cell);
+    });
+  }
+
+  // ---- FILTERS ----
+  function uniqueSorted(arr){
+    var seen = {};
+    var out = [];
+    arr.forEach(function(v){
+      if(v !== "" && v !== undefined && v !== null && !seen[v]){
+        seen[v] = true;
+        out.push(v);
+      }
+    });
+    out.sort(function(a,b){ return String(a).localeCompare(String(b)); });
+    return out;
+  }
+
+  function populateFilters(){
+    var sets = uniqueSorted(cards.map(function(c){ return c.Set; }));
+    var langCodes = uniqueSorted(cards.map(function(c){ return c.Lang; }));
+    var foils = uniqueSorted(cards.map(function(c){ return c.Foil; }));
+    var years = uniqueSorted(cards.map(function(c){ return c.Year; }));
+
+    // variant options: unique concatenated labels
+    var variantSet = {};
+    cards.forEach(function(c){
+      variantSet[variantLabel(c.Foil, c.Variation)] = true;
+    });
+    var variants = Object.keys(variantSet).sort(function(a,b){ return a.localeCompare(b); });
+
+    // status options: unique status codes present in Cards
+    var statusCodes = uniqueSorted(cards.map(function(c){ return c.Status; }));
+
+    fillSelect("f-set", sets, function(v){ return v; });
+    fillSelect("f-lang", langCodes, function(v){ return langName(v); });
+    fillSelect("f-variant", variants, function(v){ return v; });
+    fillSelect("f-status", statusCodes, function(v){ return statusName(v); });
+    fillSelect("f-foil", foils, function(v){ return v; });
+    fillSelect("f-year", years, function(v){ return v; });
+  }
+
+  function fillSelect(id, values, labelFn){
+    var select = document.getElementById(id);
+    values.forEach(function(v){
+      var opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = labelFn(v);
+      select.appendChild(opt);
+    });
+  }
+
+  function getFilteredCards(){
+    var setVal = document.getElementById("f-set").value;
+    var langVal = document.getElementById("f-lang").value;
+    var variantVal = document.getElementById("f-variant").value;
+    var statusVal = document.getElementById("f-status").value;
+    var foilVal = document.getElementById("f-foil").value;
+    var yearVal = document.getElementById("f-year").value;
+
+    return cards.filter(function(c){
+      if(setVal && c.Set !== setVal) return false;
+      if(langVal && c.Lang !== langVal) return false;
+      if(variantVal && variantLabel(c.Foil, c.Variation) !== variantVal) return false;
+      if(statusVal && c.Status !== statusVal) return false;
+      if(foilVal && c.Foil !== foilVal) return false;
+      if(yearVal && c.Year !== yearVal) return false;
+      return true;
+    });
+  }
+
+  function bindFilterEvents(){
+    ["f-set","f-lang","f-variant","f-status","f-foil","f-year"].forEach(function(id){
+      document.getElementById(id).addEventListener("change", renderTable);
+    });
+    document.getElementById("clear-filters").addEventListener("click", function(){
+      ["f-set","f-lang","f-variant","f-status","f-foil","f-year"].forEach(function(id){
+        document.getElementById(id).value = "";
+      });
+      renderTable();
+    });
+  }
+
+  // ---- TABLE ----
+  function renderTable(){
+    var filtered = getFilteredCards();
+    var tbody = document.getElementById("all-variants-body");
+    tbody.innerHTML = "";
+
+    var emptyNote = document.getElementById("table-empty");
+
+    if(filtered.length === 0){
+      emptyNote.style.display = "block";
+    } else {
+      emptyNote.style.display = "none";
+    }
+
+    filtered.forEach(function(c){
+      var tr = document.createElement("tr");
+
+      var tdSet = document.createElement("td");
+      tdSet.textContent = c.Set || "—";
+
+      var tdLang = document.createElement("td");
+      tdLang.textContent = langName(c.Lang);
+
+      var tdVariant = document.createElement("td");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "variant-link";
+      btn.textContent = variantLabel(c.Foil, c.Variation);
+      btn.addEventListener("click", function(){
+        openCardModal(c.Code);
+      });
+      tdVariant.appendChild(btn);
+
+      tr.appendChild(tdSet);
+      tr.appendChild(tdLang);
+      tr.appendChild(tdVariant);
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("results-count").textContent =
+      "Showing " + filtered.length + " of " + cards.length + " variants";
+  }
+
+  // ---------------- MODALS ----------------
+  var modalRoot = document.getElementById("modal-root");
+  var lastFocusedElement = null;
+
+  function lockScroll(){
+    document.body.style.overflow = "hidden";
+  }
+  function unlockScroll(){
+    document.body.style.overflow = "";
+  }
+
+  function closeAllModals(){
+    modalRoot.innerHTML = "";
+    unlockScroll();
+    if(lastFocusedElement){
+      lastFocusedElement.focus();
+      lastFocusedElement = null;
+    }
+  }
+
+  function bindGlobalModalEvents(){
+    document.addEventListener("keydown", function(e){
+      if(e.key === "Escape"){
+        if(modalRoot.children.length > 0){
+          closeAllModals();
         }
-		
-		function sortDatabase(data) {
-			return [...data].sort((a, b) => {
-				const modelCompare =
-					(a.model || "").localeCompare(b.model || "");
-				if (modelCompare !== 0) return modelCompare;
-				return (a.year || 0) - (b.year || 0);
-			});
-		}
+      }
+    });
+  }
 
-        function renderNav() {
-            document.getElementById('total-count').textContent = database.filter(i => i.collection === 'Coleccion').length + " en coleccion / " + database.filter(i => i.collection === 'Faltantes').length + " faltantes";
-            ['coleccion','faltantes','informacion'].forEach(tab => {
-                const el = document.getElementById(`tab-${tab}`);
-                if (el) el.classList.toggle('bg-white', 'text-red-600', tab === currentPage);
-            });
-        }
+  function openArtModal(artId){
+    lastFocusedElement = document.activeElement;
+    var info = artInfo(artId);
+    var rows = cards.filter(function(c){ return (c.art_id || "").trim() === artId; });
 
-        function getModelsInCategory(cat) {
-            const items = database.filter(i => i.collection === cat);
-            const models = {};
-            items.forEach(item => {
-                const m = item.model || 'Sin cartas';
-                if (!models[m]) models[m] = [];
-                models[m].push(item);
-            });
-            return models;
-        }
+    rows.sort(function(a, b){
+      var s = (a.Set || "").localeCompare(b.Set || "");
+      if(s !== 0) return s;
+      var l = langName(a.Lang).localeCompare(langName(b.Lang));
+      if(l !== 0) return l;
+      return variantLabel(a.Foil, a.Variation).localeCompare(variantLabel(b.Foil, b.Variation));
+    });
 
-        function renderContent() {
-            const container = document.getElementById('main-content');
-            let html = '';
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.addEventListener("click", function(e){
+      if(e.target === overlay) closeAllModals();
+    });
 
-            if (currentPage === 'informacion') {
-                const coleccionCount = database.filter(i => i.collection === 'Coleccion').length;
-                const faltantesCount = database.filter(i => i.collection === 'Faltantes').length;
+    var box = document.createElement("div");
+    box.className = "modal-box";
 
-                html = `
-                <div class="max-w-4xl mx-auto">
-                    <div class="bg-white text-zinc-900 rounded-3xl p-8">
-                        <h1 class="text-4xl font-semibold mb-2">Resumen</h1>
-                        <p class="text-zinc-500 mb-8">Resumen de tu registro</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div class="bg-zinc-50 border border-zinc-100 rounded-3xl p-6">
-                                <p class="text-emerald-600 text-sm font-medium">COLECCION</p>
-                                <p class="text-5xl sm:text-6xl lg:text-7xl font-semibold text-emerald-600 mt-2">${coleccionCount}</p>
-                            </div>
-                            <div class="bg-zinc-50 border border-zinc-100 rounded-3xl p-6">
-                                <p class="text-amber-600 text-sm font-medium">FALTANTES</p>
-                                <p class="text-5xl sm:text-6xl lg:text-7xl font-semibold text-amber-600 mt-2">${faltantesCount}</p>
-                            </div>
-                            <div class="bg-zinc-50 border border-zinc-100 rounded-3xl p-6">
-                                <p class="text-red-600 text-sm font-medium">TOTAL</p>
-                                <p class="text-5xl sm:text-6xl lg:text-7xl font-semibold text-red-600 mt-2">${database.length}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-				<div class="flex justify-center gap-4 text-sm">
-					<button onclick="exportData('Coleccion')"
-						class="px-6 py-4 bg-zinc-800 text-white rounded-xl
-						shadow-md hover:bg-emerald-700 hover:shadow-lg
-						transition-all duration-200">
-						Exportar Coleccion
-					</button>
-					<button onclick="exportData('Faltantes')"
-						class="px-6 py-4 bg-zinc-800 text-white rounded-xl
-						shadow-md hover:bg-emerald-700 hover:shadow-lg
-						transition-all duration-200">
-						Exportar Faltantes
-					</button>
-					<button onclick="exportData('All')"
-						class="px-6 py-4 bg-zinc-800 text-white rounded-xl
-						shadow-md hover:bg-emerald-700 hover:shadow-lg
-						transition-all duration-200">
-						Exportar Todo
-					</button>
-				</div>`;
-            } else if (currentModel) {
-                const items = database.filter(i => i.collection === pageConfig[currentPage].cat && (i.model || 'Sin modelo') === currentModel);
-                html = `
-                <div class="mb-6 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <button onclick="backToModels()" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-3xl">
-							<span class="text-lg">\<-</span>
-							<span class="hidden sm:inline ml-2">\Volver</span>
-						</button>
-                        <h1 class="text-3xl font-semibold">${currentModel}</h1>
-                    </div>
-                    <button onclick="addNewItem()" class="flex items-center gap-x-2 bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-3xl text-sm font-medium">
-                        <span class="text-2xl">+</span>
-						<span class="hidden sm:inline">Nuevo</span>
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    ${items.map((item) => `
-                        <div onclick="showDetailModalByIndex(${database.indexOf(item)})" class="grid-item bg-white rounded-3xl overflow-hidden cursor-pointer">
-                            <img src="${item.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover" style="object-position: center -55px" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
-                            <div class="p-3">
-                                <p class="font-medium truncate">${item.name}</p>
-								<p class="text-s text-zinc-500 truncate">${item.year} ${item.serie1} - ${item.serie2}</p>
-								<p class="text-xs text-zinc-500">${item.variant}</p>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>`;
-            } else {
-                const models = getModelsInCategory(pageConfig[currentPage].cat);
-                html = `
-                <div class="flex justify-between items-center mb-8">
-                    <h1 class="text-3xl font-semibold">${pageConfig[currentPage].label}</h1>
-                    <button onclick="addNewItem()" class="flex items-center gap-x-2 bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-3xl text-sm font-medium">
-                        <span class="text-2xl">+</span>
-						<span class="hidden sm:inline">Nuevo</span>
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    ${Object.keys(models).sort().map(m => {
-                        const first = models[m][0];
-                        return `
-                        <div onclick="selectModel('${m.replace(/'/g, "\\'")}')" class="model-card bg-white rounded-3xl overflow-hidden cursor-pointer">
-                            <img src="${first.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="w-full aspect-video object-cover" style="object-position: center -55px" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
-                            <div class="p-5">
-                                <p class="font-semibold text-l">${m}</p>
-                                <p class="text-zinc-500">${models[m].length} versiones</p>
-                            </div>
-                        </div>`;
-                    }).join('')}
-                </div>`;
-            }
+    var closeBtn = document.createElement("button");
+    closeBtn.className = "modal-close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", closeAllModals);
 
-            container.innerHTML = html;
-            renderNav();
-        }
+    var title = document.createElement("h3");
+    title.className = "modal-title";
+    title.textContent = info.name;
 
-        function selectModel(model) { currentModel = model; renderContent(); }
-        function backToModels() { currentModel = null; renderContent(); }
-        function setPage(page) { currentPage = page; currentModel = null; renderContent(); }
-		function lockScroll() {
-			const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-			document.body.style.paddingRight = scrollBarWidth + "px";
-			document.body.style.overflow = "hidden";
-		}
-		function unlockScroll() {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		}
+    var table = document.createElement("table");
+    var thead = document.createElement("thead");
+    thead.innerHTML = "<tr><th>Set</th><th>Language</th><th>Variant</th></tr>";
+    var tbody = document.createElement("tbody");
 
-        function showDetailModalByIndex(globalIndex) {
-			document.body.style.overflow = "hidden";
-			lockScroll();
-            const item = database[globalIndex];
-            if (!item) return;
+    rows.forEach(function(c){
+      var tr = document.createElement("tr");
 
-            let html = `
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h2 class="text-3xl font-semibold">${item.name || 'Sin nombre'}</h2>
-                    ${item.year ? `<p class="text-red-600 text-2xl">${item.year}</p>` : ''}
-                </div>
-                <button onclick="closeAllModals()" class="text-4xl text-zinc-400 hover:text-zinc-600">x</button>
-            </div>
-            <div class="flex justify-center mb-8">
-                <img src="${item.imgurl || 'https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'}" class="max-h-80 rounded-3xl shadow-xl object-contain" onerror="this.src='https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/whosthatporygon.png'">
-            </div>`;
+      var tdSet = document.createElement("td");
+      tdSet.textContent = c.Set || "—";
 
-            html += `<div class="grid grid-cols-2 gap-2 text-sm max-w-lg mx-auto">`;
-            allFields
-				.filter(f => f.detail !== false)
-				.forEach(f => {
-					html += `
-					<div class="flex justify-between items-center bg-zinc-50 px-4 py-3 rounded-xl">
-						<span class="text-zinc-500">${f.label}</span>
-						<span class="font-medium">${item[f.key] ?? 'xd'}</span>
-					</div>`;
-            });
-            html += `</div>`;
+      var tdLang = document.createElement("td");
+      tdLang.textContent = langName(c.Lang);
 
-            html += `
-            <div class="flex gap-4 mt-10">
-                <button onclick="startEditByIndex(${globalIndex})" class="flex-1 py-4 bg-amber-500 text-white rounded-3xl">Editar</button>
-                <button onclick="deleteItemByIndex(${globalIndex});closeAllModals()" class="flex-1 py-4 bg-red-500 text-white rounded-3xl">Eliminar</button>
-                <button onclick="closeAllModals()" class="flex-1 py-4 bg-zinc-200 text-zinc-700 rounded-3xl">Cerrar</button>
-            </div>`;
+      var tdVariant = document.createElement("td");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "variant-link";
+      btn.textContent = variantLabel(c.Foil, c.Variation);
+      btn.addEventListener("click", function(){
+        openCardModal(c.Code);
+      });
+      tdVariant.appendChild(btn);
 
-            document.getElementById('detail-content').innerHTML = html;
-            document.getElementById('detail-modal').classList.remove('hidden');
-        }
+      tr.appendChild(tdSet);
+      tr.appendChild(tdLang);
+      tr.appendChild(tdVariant);
+      tbody.appendChild(tr);
+    });
 
-        function startEditByIndex(index) {
-            closeAllModals();
-            setTimeout(() => editItemByIndex(index), 300);
-        }
+    table.appendChild(thead);
+    table.appendChild(tbody);
 
-        function editItemByIndex(index) {
-            editingId = index;
-			document.body.style.overflow = "hidden";
-            document.getElementById('form-title').textContent = 'Editar Porygon';
-            buildForm(index);
-            document.getElementById('form-modal').classList.remove('hidden');
-        }
+    box.appendChild(closeBtn);
+    box.appendChild(title);
+    if(rows.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty-note";
+      empty.textContent = "No variants found for this art.";
+      box.appendChild(empty);
+    } else {
+      box.appendChild(table);
+    }
 
-        function addNewItem() {
-            editingId = null;
-            document.getElementById('form-title').textContent = 'Registrar nuevo Porygon';
-            buildForm();
-            document.getElementById('form-modal').classList.remove('hidden');
-        }
+    overlay.appendChild(box);
+    modalRoot.innerHTML = "";
+    modalRoot.appendChild(overlay);
+    lockScroll();
+    closeBtn.focus();
+  }
 
-        function buildForm(index = null) {
-            const item = index !== null ? database[index] : {};
-            let html = '';
-            allFields.forEach(field => {
-                const val = item[field.key] || '';
-                if (field.key === 'collection') {
-                    html += `<div class="col-span-2"><label class="block text-xs font-medium text-zinc-500 mb-1">${field.label}</label>
-                    <select id="form-${field.key}" class="w-full border border-zinc-200 rounded-3xl px-5 py-4">
-                        <option value="Coleccion" ${val==='Coleccion'?'selected':''}>Coleccion</option>
-                        <option value="Faltantes" ${val==='Faltantes'?'selected':''}>Faltantes</option>
-                    </select></div>`;
-                } else if (field.key === 'notes') {
-                    html += `<div class="col-span-2"><label class="block text-xs font-medium text-zinc-500 mb-1">${field.label}</label>
-                    <textarea id="form-${field.key}" rows="1" class="w-full border border-zinc-200 rounded-3xl px-5 py-4">${val}</textarea></div>`;
-                } else {
-                    html += `<div><label class="block text-xs font-medium text-zinc-500 mb-1">${field.label}</label>
-                    <input type="text" id="form-${field.key}" value="${val}" class="w-full border border-zinc-200 rounded-3xl px-5 py-4"></div>`;
-                }
-            });
-            document.getElementById('item-form').innerHTML = html;
-        }
+  function openCardModal(code){
+    lastFocusedElement = document.activeElement || lastFocusedElement;
+    var card = cards.find(function(c){ return c.Code === code; });
+    if(!card){
+      console.error("Card not found for code: " + code);
+      return;
+    }
 
-        function saveItem() {
-            const newItem = {};
-            allFields.forEach(f => {
-                const el = document.getElementById(`form-${f.key}`);
-                if (el) newItem[f.key] = el.value.trim();
-            });
+    var info = artInfo((card.art_id || "").trim());
 
-            if (!newItem.id || !newItem.name) {
-                alert("ID y Nombre son obligatorios");
-                return;
-            }
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.addEventListener("click", function(e){
+      if(e.target === overlay) closeAllModals();
+    });
 
-            if (editingId !== null) {
-                database[editingId] = { ...database[editingId], ...newItem };
-            } else {
-                database.push(newItem);
-            }
+    var box = document.createElement("div");
+    box.className = "modal-box";
 
-            alert("? Registro guardado localmente.\nRecuerda editar el archivo database.json en GitHub para actualizar la versión online.");
-            closeAllModals();
-            renderContent();
-        }
+    var closeBtn = document.createElement("button");
+    closeBtn.className = "modal-close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", closeAllModals);
 
-        function deleteItemByIndex(index) {
-            if (confirm("¿Eliminar esta carta?")) {
-                database.splice(index, 1);
-                renderContent();
-            }
-        }
+    var title = document.createElement("h3");
+    title.className = "modal-title";
+    title.textContent = card.Code;
 
-        function closeAllModals() {
-			document.body.style.overflow = "";
-            document.getElementById('detail-modal').classList.add('hidden');
-            document.getElementById('form-modal').classList.add('hidden');
-			unlockScroll();
-        }
+    var body = document.createElement("div");
+    body.className = "card-modal-body";
 
-        function initialize() {
-            loadDatabase();
-        }
-		
-		function exportData(type) {
+    var imgWrap = document.createElement("div");
+    imgWrap.className = "card-modal-img";
+	var FALLBACK_IMAGE_URL = "https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/cards/porygont.png";
+    if(card.URL){
+      var img = document.createElement("img");
+      img.src = card.URL;
+      img.alt = card.Code + " card image";
+      img.onerror = function(){
+        img.onerror = null;
+        img.src = FALLBACK_IMAGE_URL;
+        img.alt = "Image unavailable";
+      };
+      imgWrap.appendChild(img);
+    } else {
+      var imgDefault = document.createElement("img");
+      imgDefault.src = FALLBACK_IMAGE_URL;
+      imgDefault.alt = "Image unavailable";
+      imgWrap.appendChild(imgDefault);
+    }
 
-			let filtered;
+    var details = document.createElement("div");
+    details.className = "card-modal-details";
 
-			if (type === "Coleccion") {
-				filtered = database.filter(item => item.collection === "Coleccion");
-			}
+    var fields = [
+      ["Code", card.Code || "—"],
+      ["Art", info.name],
+      ["Art ID", card.art_id || "—"],
+      ["Set", card.Set || "—"],
+      ["Number", card.Num || "—"],
+      ["Year", card.Year || "—"],
+      ["Foil", card.Foil || "—"],
+      ["Variation", card.Variation || "—"],
+      ["Language", langName(card.Lang)],
+      ["Status", statusName(card.Status)],
+      ["Notes", card.Notes || "—"]
+    ];
 
-			else if (type === "Faltantes") {
-				filtered = database.filter(item => item.collection === "Faltantes");
-			}
+    fields.forEach(function(f){
+      var row = document.createElement("div");
+      row.className = "detail-row";
+      var k = document.createElement("div");
+      k.className = "k";
+      k.textContent = f[0];
+      var v = document.createElement("div");
+      v.className = "v";
+      v.textContent = f[1];
+      row.appendChild(k);
+      row.appendChild(v);
+      details.appendChild(row);
+    });
 
-			else if (type === "All") {
-				filtered = database;
-			}
+    body.appendChild(imgWrap);
+    body.appendChild(details);
 
-			const sorted = sortDatabase(filtered);
+    box.appendChild(closeBtn);
+    box.appendChild(title);
+    box.appendChild(body);
 
-			downloadJSON(sorted, `${type.toLowerCase()}.json`);
-		}
+    overlay.appendChild(box);
+    modalRoot.innerHTML = "";
+    modalRoot.appendChild(overlay);
+    lockScroll();
+    closeBtn.focus();
+  }
 
-		function downloadJSON(data, filename) {
+  function escapeHtml(str){
+    if(str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-			const blob = new Blob(
-				[JSON.stringify(data, null, 2)],
-				{ type: "application/json" }
-			);
+  loadData();
+})();
+</script>
 
-			const url = URL.createObjectURL(blob);
-
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = filename;
-			a.click();
-
-			URL.revokeObjectURL(url);
-		}
-
-        window.onload = initialize;
-    </script>
 </body>
 </html>
