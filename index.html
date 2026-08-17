@@ -923,6 +923,7 @@
   // ---------------- MODALS ----------------
   var modalRoot = document.getElementById("modal-root");
   var lastFocusedElement = null;
+  var modalReturnArtId = null; // if set, closing the card modal returns to this art modal instead of closing everything
 
   function lockScroll(){
     document.body.style.overflow = "hidden";
@@ -933,6 +934,7 @@
 
   function closeAllModals(){
     modalRoot.innerHTML = "";
+    modalReturnArtId = null;
     unlockScroll();
     if(lastFocusedElement){
       lastFocusedElement.focus();
@@ -940,18 +942,33 @@
     }
   }
 
+  // Used by the card modal's close button / outside click / Escape:
+  // goes back to the art modal it was opened from, if any, instead of closing everything.
+  function requestCloseModal(){
+    if(modalReturnArtId){
+      var returnId = modalReturnArtId;
+      modalReturnArtId = null;
+      openArtModal(returnId);
+    } else {
+      closeAllModals();
+    }
+  }
+
   function bindGlobalModalEvents(){
     document.addEventListener("keydown", function(e){
       if(e.key === "Escape"){
         if(modalRoot.children.length > 0){
-          closeAllModals();
+          requestCloseModal();
         }
       }
     });
   }
 
   function openArtModal(artId){
-    lastFocusedElement = document.activeElement;
+    if(modalRoot.children.length === 0){
+      lastFocusedElement = document.activeElement;
+    }
+    modalReturnArtId = null;
     var info = artInfo(artId);
     var rows = cards.filter(function(c){ return (c.art_id || "").trim() === artId; });
 
@@ -1002,7 +1019,7 @@
       btn.className = "variant-link";
       btn.textContent = variantLabel(c.Foil, c.Variation);
       btn.addEventListener("click", function(){
-        openCardModal(c.Code);
+        openCardModal(c.Code, artId);
       });
       tdVariant.appendChild(btn);
 
@@ -1033,8 +1050,11 @@
     closeBtn.focus();
   }
 
-  function openCardModal(code){
-    lastFocusedElement = document.activeElement || lastFocusedElement;
+  function openCardModal(code, returnArtId){
+    if(modalRoot.children.length === 0){
+      lastFocusedElement = document.activeElement || lastFocusedElement;
+    }
+    modalReturnArtId = returnArtId || null;
     var card = cards.find(function(c){ return c.Code === code; });
     if(!card){
       console.error("Card not found for code: " + code);
@@ -1046,7 +1066,7 @@
     var overlay = document.createElement("div");
     overlay.className = "modal-overlay";
     overlay.addEventListener("click", function(e){
-      if(e.target === overlay) closeAllModals();
+      if(e.target === overlay) requestCloseModal();
     });
 
     var box = document.createElement("div");
@@ -1056,7 +1076,7 @@
     closeBtn.className = "modal-close";
     closeBtn.setAttribute("aria-label", "Close");
     closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", closeAllModals);
+    closeBtn.addEventListener("click", requestCloseModal);
 
     var title = document.createElement("h3");
     title.className = "modal-title";
@@ -1067,7 +1087,7 @@
 
     var imgWrap = document.createElement("div");
     imgWrap.className = "card-modal-img";
-    var FALLBACK_IMAGE_URL = "https://raw.githubusercontent.com/Zeru64/pory/refs/heads/main/cards/porygont.png";
+    var FALLBACK_IMAGE_URL = "https://example.com/path/to/tu-imagen-de-error.png";
 
     if(card.URL){
       var img = document.createElement("img");
